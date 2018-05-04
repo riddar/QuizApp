@@ -1,64 +1,65 @@
 import * as React from 'react';
 import { RouteComponentProps } from 'react-router';
-
-interface IHighScoresProps {}
+import 'isomorphic-fetch';
 
 interface IHighScoresState {
-    Scores: [{ Id: number, Points: number, Date: string, TimeTaken: number }],
+    Scores: Score[];
     HasFetchedData: boolean;
 }
 
-export class HighScores extends React.Component<RouteComponentProps<IHighScoresProps>, IHighScoresState> {
-    public constructor(props: RouteComponentProps<IHighScoresProps>) {
-        super(props);
-        this.state = {
-            Scores: [
-                { Id: 1, Points: 5, Date: "", TimeTaken: 52 },
-                { Id: 2, Points: 10, Date: "", TimeTaken: 24 },
-                { Id: 3, Points: 7, Date: "", TimeTaken: 37 }
-            ],
-            HasFetchedData: false
-        }
+
+
+export class HighScores extends React.Component<RouteComponentProps<{}>, IHighScoresState> {
+    constructor() {
+        super();
+        this.state = { Scores: [], HasFetchedData: true };
+
+        fetch("api/Scores")
+            .then(response => response.json() as Promise<Score[]>)
+            .then(data => {
+                console.log(data);
+                this.setState({ Scores: [], HasFetchedData: false });
+            });
     }
 
     public render() {
-        let scores = this.state.Scores;   
-        let info = <div className="info"></div>;
+        let contents = this.state.HasFetchedData
+            ? <p><em>Loading...</em></p>
+            : HighScores.renderHighScoresTable(this.state.Scores);
 
-        if (!this.state.HasFetchedData)
-            info = <div className="info">...loading</div>;
-        else if (this.state.HasFetchedData && scores.length > 0)
-            info = <div className="info">Scores Found</div>;
-        else
-            info = <div className="info">No scores found!</div>;
-
-        return (<div className="ScoreInfo">
-            <h1>HighScores</h1>
-            <h4>{info}</h4>
-            {scores.forEach(function (value) {
-                value.Id;
-            })}
-        </div>)
+        return <div>
+            <h1>Weather forecast</h1>
+            <p>This component demonstrates fetching data from the server.</p>
+            {contents}
+        </div>;
     }
 
-    fetchHighScores() {
-        fetch("api/Scores")
-            .then(data => {
-                console.log("Gethighscores: ", data);
-                return data.json();
-            })
-            .then(json => {
-                this.setState({
-                    HasFetchedData: true
-                })
-                console.log("json: ", json);
-            })
-            .catch(error => {
-                console.log("Error: ", error);
-            })
+    private static renderHighScoresTable(scores: Score[]) {
+        return <table className='table'>
+            <thead>
+                <tr>
+                    <th>Points</th>
+                    <th>TimeTaken</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {scores.map(s =>
+                    <tr key={s.Id}>
+                        <td>{s.Points}</td>
+                        <td>{s.TimeTaken}</td>
+                        <td>{s.Date}</td>
+                    </tr>
+                )}
+            </tbody>
+        </table>;
     }
+}
 
-    componentDidMount() {
-        this.fetchHighScores();
-    }
+interface Score {
+    Id: number;
+    Points: number;
+    Date: string;
+    TimeTaken: number;
+    HasFetchedData: boolean;
 }
