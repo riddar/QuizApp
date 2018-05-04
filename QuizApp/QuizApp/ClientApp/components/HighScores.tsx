@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { RouteComponentProps } from 'react-router';
 
 interface IHighScoresProps {}
 
@@ -7,8 +8,8 @@ interface IHighScoresState {
     HasFetchedData: boolean;
 }
 
-export class HighScores extends React.Component<IHighScoresProps, IHighScoresState> {
-    public constructor(props: IHighScoresProps) {
+export class HighScores extends React.Component<RouteComponentProps<IHighScoresProps>, IHighScoresState> {
+    public constructor(props: RouteComponentProps<IHighScoresProps>) {
         super(props);
         this.state = {
             Scores: [
@@ -21,9 +22,7 @@ export class HighScores extends React.Component<IHighScoresProps, IHighScoresSta
     }
 
     public render() {
-        let scores = this.state.Scores;
-
-        <h1>HighScores</h1>
+        let scores = this.state.Scores;   
         let info = <div className="info"></div>;
 
         if (!this.state.HasFetchedData)
@@ -34,27 +33,32 @@ export class HighScores extends React.Component<IHighScoresProps, IHighScoresSta
             info = <div className="info">No scores found!</div>;
 
         return (<div className="ScoreInfo">
-            {info}
+            <h1>HighScores</h1>
+            <h4>{info}</h4>
             {scores.forEach(function (value) {
-                console.log(value.Id);
                 value.Id;
             })}
         </div>)
     }
 
-
-
     fetchHighScores() {
         fetch("api/Scores")
             .then(data => {
-                console.log("gethighscores: ", data);
+                console.log("Gethighscores: ", data);
                 return data.json();
             })
             .then(json => {
+                this.setState({
+                    HasFetchedData: true
+                })
                 console.log("json: ", json);
             })
             .catch(error => {
                 console.log("Error: ", error);
             })
+    }
+
+    componentDidMount() {
+        this.fetchHighScores();
     }
 }

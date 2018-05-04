@@ -202,6 +202,8 @@ namespace QuizApp.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<string>("Content");
+
                     b.Property<int>("Time");
 
                     b.HasKey("Id");

@@ -11,8 +11,8 @@ using System;
 namespace QuizApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20180504083730_init")]
-    partial class init
+    [Migration("20180504123545_Init")]
+    partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -202,6 +202,8 @@ namespace QuizApp.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Content");
 
                     b.Property<int>("Time");
 

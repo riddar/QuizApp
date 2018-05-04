@@ -12,6 +12,7 @@ namespace QuizApp.Models
         [Key]
         public int Id { get; set; }
         public int Time { get; set; }
+        public string Content { get; set; }
         public IList<Score> Scores { get; set; }
         public IList<Alternative> Alternatives { get; set; }
 
