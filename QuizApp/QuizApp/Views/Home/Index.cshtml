@@ -1,21 +1,9 @@
-﻿@model QuizApp.Models.ApplicationUser;
-@inject QuizApp.Data.ApplicationDbContext context;
-@{ViewData["Title"] = "QuizApp";}
+@{
+    ViewData["Title"] = "Home Page";
+}
 
-<h1>QuizApp</h1>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Index" asp-controller="HomeContoller">
-            <div asp-validation-summary="ModelOnly" class="text-danger" />
-            <div class="form-group">
-                <input type="submit" value="Start Game" asp-action="Quiz" class="btn btn-default" />
-            </div>
-        </form>
-    </div>
-</div>
+<div id="react-app">Loading...</div>
 
-
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+@section scripts {
+    <script src="~/dist/main.js" asp-append-version="true"></script>
 }
