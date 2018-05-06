@@ -28,6 +28,13 @@ namespace QuizApp.Controllers
             return _context.Questions.Include(q => q.Alternatives);
         }
 
+        [HttpGet]
+        public async Task<IEnumerable<Alternative>> GetAlternativesByQuestion([FromRoute] int id)
+        {
+            var alternatives = await _context.Alternatives.Where(a => a.Question.Id == id).ToListAsync();
+            return alternatives;
+        }
+
         // GET: api/Questions/5
         [HttpGet("{id}")]
         public async Task<IActionResult> GetQuestion([FromRoute] int id)
