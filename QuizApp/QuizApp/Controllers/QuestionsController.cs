@@ -25,31 +25,21 @@ namespace QuizApp.Controllers
         [HttpGet]
         public IEnumerable<Question> GetQuestions()
         {
-            return _context.Questions.Include(q => q.Alternatives);
-        }
-
-        [HttpGet]
-        public async Task<IEnumerable<Alternative>> GetAlternativesByQuestion([FromRoute] int id)
-        {
-            var alternatives = await _context.Alternatives.Where(a => a.Question.Id == id).ToListAsync();
-            return alternatives;
+            var questions = _context.Questions;
+            return questions;
         }
 
         // GET: api/Questions/5
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetQuestion([FromRoute] int id)
+        public async Task<IActionResult> GetQuestion([FromRoute] int? id)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+            if (id == null)
+                return NotFound();
 
-            var question = await _context.Questions.SingleOrDefaultAsync(m => m.Id == id);
+            var question = await _context.Questions.Include(q => q.Alternatives).SingleOrDefaultAsync(m => m.Id == id);
 
             if (question == null)
-            {
                 return NotFound();
-            }
 
             return Ok(question);
         }
@@ -123,6 +113,14 @@ namespace QuizApp.Controllers
             await _context.SaveChangesAsync();
 
             return Ok(question);
+        }
+
+        public async Task<IActionResult> GetRandomQuestion()
+        {
+            Random num = new Random();
+            int rnd = num.Next(1, _context.Questions.Count() + 1);
+
+            return await GetQuestion(rnd);
         }
 
         private bool QuestionExists(int id)

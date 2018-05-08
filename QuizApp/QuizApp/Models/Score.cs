@@ -16,5 +16,7 @@ namespace QuizApp.Models
         public int TimeTaken { get; set; }    
         [ForeignKey("QuestionId")]
         public virtual Question Question { get; set; }
+
+        public int QuestionId { get; set; }
     }
 }

@@ -15,5 +15,7 @@ namespace QuizApp.Models
         public bool IsTrue { get; set; }
         [ForeignKey("QuestionId")]
         public virtual Question Question { get; set; }
+
+        public int QuestionId { get; set; }
     }
 }
