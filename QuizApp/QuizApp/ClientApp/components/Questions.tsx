@@ -76,7 +76,9 @@ export class Questions extends React.Component<RouteComponentProps<{}>, IQuestio
                         <td>{q.id}</td>
                         <td>{q.content}</td>
                         <td>{q.time}</td>
-                        {this.alternativeFilter(q.id)}
+                        <td>{this.alternativeFilter(q.id)}</td>
+                        <td><a className="action" onClick={(id) => this.EditQuestion(q.id)}>Edit</a></td>
+                        <td><a className="action" onClick={(id) => this.RemoveQuestion(q.id)}>Delete</a></td>
                     </tr>)}
             </tbody>
         </table>
@@ -89,7 +91,6 @@ export class Questions extends React.Component<RouteComponentProps<{}>, IQuestio
                 <li>Question:<input type="text" placeholder="Question" /></li><br />
                 <li>CorrectAnswer:<input placeholder="Answer" /></li><br />
                 <li>WrongAnwer:<input placeholder="Wrong" /></li><br />
-                <li><button onclick={this.PostQuestion}>Submit</button></li>
             </ul>
         </div>
     }
@@ -98,7 +99,6 @@ export class Questions extends React.Component<RouteComponentProps<{}>, IQuestio
         fetch("api/Questions")
             .then(Response => Response.json() as Promise<Question[]>)
             .then(data => {
-                console.log(data);
                 this.setState({
                     Questions: data,
                     loading: false
@@ -111,7 +111,6 @@ export class Questions extends React.Component<RouteComponentProps<{}>, IQuestio
         fetch("api/Alternatives")
             .then(Response => Response.json() as Promise<Alternative[]>)
             .then(data => {
-                console.log(data);
                 this.setState({
                     Alternatives: data,
                     loading: false
@@ -121,24 +120,21 @@ export class Questions extends React.Component<RouteComponentProps<{}>, IQuestio
     }
 
     public alternativeFilter(Id: number) {
-        this.state.Alternatives.map(a => {
-            if (a.questionId == Id) {
-                <tr key={a.id}>
-                    <td>{a.id}</td>
-                    <td>{a.content}</td>
-                    if (a.isTrue) {
-                        <span className='react-icons/lib/fa/check-square-o'><td>{a.isTrue}</td></span>
-                    }
-                    else {
-                        <span className='react-icons/lib/fa/circle-thin'><td>{a.isTrue}</td></span>
-                    }
-                </tr>
-            }
-        });
+        //console.log("altfilter: ", Id, this.state.Alternatives);
+        let found: Alternative[] = this.state.Alternatives.filter(a => a.questionId == Id);
+        if (found.length < 1) return <br/>;
+        console.log(found);
+
+        return found.map(f =>
+            <tr key={f.id}>
+                <td>{f.id}</td>
+                <div>{f.content}</div>
+                <div>{f.isTrue}</div>
+            </tr>
+        );
     }
 
-    public PostQuestion(event: any) {
-        let question = { content, time, Scores, Alternatives };
+    public AddQuestion(question: Question) {
         fetch("api/Questions/", { method: "Post", body: question })
             .then(Response => Response.json() as Promise<Question>)
             .then(json => {
@@ -146,6 +142,22 @@ export class Questions extends React.Component<RouteComponentProps<{}>, IQuestio
             })
             .catch(error => { console.log("error: ", error) });
         return question;
+    }
+
+    public RemoveQuestion(Id: number) {
+        fetch('api/Questions/Delete/' + Id, {method: 'delete' })
+            .then(data => {
+            this.setState({
+                    Questions: this.state.Questions.filter((rec) => {
+                        return (rec.id != Id);
+
+                    })
+                });
+        });  
+    }
+
+    public EditQuestion(Id: number) {
+        this.props.history.push("api/Questions/Edit/" + Id);
     }
 
     componentDidMount() {
