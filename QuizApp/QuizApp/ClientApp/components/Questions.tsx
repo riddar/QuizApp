@@ -1,11 +1,13 @@
 import * as React from 'react';
 import { RouteComponentProps } from 'react-router';
+import { Link, NavLink } from 'react-router-dom';
 
 class Score {
     id: number;
     points: number;
     date: string;
     timeTaken: number;
+    questionId: number;
 }
 
 class Alternative {
@@ -55,8 +57,7 @@ export class Questions extends React.Component<RouteComponentProps<{}>, IQuestio
         return <div>
             <h1>Questions</h1>
             {contents}
-            {contents2}
-            
+            {contents2}      
         </div>
     }
 
@@ -77,22 +78,11 @@ export class Questions extends React.Component<RouteComponentProps<{}>, IQuestio
                         <td>{q.content}</td>
                         <td>{q.time}</td>
                         <td>{this.alternativeFilter(q.id)}</td>
-                        <td><a className="action" onClick={(id) => this.EditQuestion(q.id)}>Edit</a></td>
+                        <td><NavLink to={'/Edit'} exact activeClassName='active'><a>Edit</a></NavLink></td>
                         <td><a className="action" onClick={(id) => this.RemoveQuestion(q.id)}>Delete</a></td>
                     </tr>)}
             </tbody>
         </table>
-    }
-
-   public renderQuestionAdd() {
-        return <div>
-            <h4>Add/Update/Delete Question</h4>
-            <ul className='nav navbar-nav'>
-                <li>Question:<input type="text" placeholder="Question" /></li><br />
-                <li>CorrectAnswer:<input placeholder="Answer" /></li><br />
-                <li>WrongAnwer:<input placeholder="Wrong" /></li><br />
-            </ul>
-        </div>
     }
 
     public fetchQuestions() {
@@ -119,13 +109,28 @@ export class Questions extends React.Component<RouteComponentProps<{}>, IQuestio
             .catch(error => { console.log("error: ", error) });
     }
 
-    public alternativeFilter(Id: number) {
-        //console.log("altfilter: ", Id, this.state.Alternatives);
-        let found: Alternative[] = this.state.Alternatives.filter(a => a.questionId == Id);
-        if (found.length < 1) return <br/>;
-        console.log(found);
+    public renderQuestionAdd() {
+        let question: Question;
 
-        return found.map(f =>
+        return <div>
+            <ul className='nav navbar-nav'>
+                <li>
+                    Question:<input id="question" type="text" placeholder="Question" />
+                </li><br /><br />
+                <li>Answer:<input id="" placeholder="Answer" />
+                    <input type="checkbox" name="istrue" id="istrue"/>
+                    <button>+</button>
+                </li><br />
+                <td><a className="action" onClick={(id) => this.AddQuestion(question)}>Add</a></td>
+            </ul>
+        </div>
+    }
+
+    public alternativeFilter(Id: number) {
+        const alternatives: Alternative[] = this.state.Alternatives.filter(a => a.questionId == Id);
+        if (alternatives.length < 1) return <br/>;
+
+        return alternatives.map(f =>
             <tr key={f.id}>
                 <td>{f.id}</td>
                 <div>{f.content}</div>
@@ -145,7 +150,7 @@ export class Questions extends React.Component<RouteComponentProps<{}>, IQuestio
     }
 
     public RemoveQuestion(Id: number) {
-        fetch('api/Questions/Delete/' + Id, {method: 'delete' })
+        fetch('api/Questions/Delete/' + Id, {method: 'post' })
             .then(data => {
             this.setState({
                     Questions: this.state.Questions.filter((rec) => {
@@ -154,10 +159,6 @@ export class Questions extends React.Component<RouteComponentProps<{}>, IQuestio
                     })
                 });
         });  
-    }
-
-    public EditQuestion(Id: number) {
-        this.props.history.push("api/Questions/Edit/" + Id);
     }
 
     componentDidMount() {
