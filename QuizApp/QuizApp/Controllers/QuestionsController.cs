@@ -22,7 +22,7 @@ namespace QuizApp.Controllers
         }
 
         // GET: api/Questions
-        [HttpGet]
+        [HttpGet("GetQuestions")]
         public IEnumerable<Question> GetQuestions()
         {
             var questions = _context.Questions;
@@ -36,7 +36,7 @@ namespace QuizApp.Controllers
             if (id == null)
                 return NotFound();
 
-            var question = await _context.Questions.Include(q => q.Alternatives).SingleOrDefaultAsync(m => m.Id == id);
+            var question = await _context.Questions.SingleOrDefaultAsync(m => m.Id == id);
 
             if (question == null)
                 return NotFound();
@@ -115,12 +115,31 @@ namespace QuizApp.Controllers
             return Ok(question);
         }
 
-        public async Task<IActionResult> GetRandomQuestion()
+        [HttpGet("GetRandomQuestions")]
+        public IEnumerable<Question> GetRandomQuestions()
         {
-            Random num = new Random();
-            int rnd = num.Next(1, _context.Questions.Count() + 1);
+            var rand = new Random();
+            var size = 10;
+            var questions = _context.Questions.OrderBy(c => rand.Next()).Take(size).ToList();
 
-            return await GetQuestion(rnd);
+            foreach (var question in questions)
+                if (question == null)
+                    questions.Remove(question);
+
+            return questions;
+        }
+
+        [HttpGet("GetRandomQuestion")]
+        public Question GetRandomQuestion()
+        {
+            var rand = new Random();
+            Question question = new Question();
+            do
+            {
+                question = _context.Questions.OrderBy(c => rand.Next()).Take(1).FirstOrDefault();
+            } while (question == null);
+
+            return question;
         }
 
         private bool QuestionExists(int id)
