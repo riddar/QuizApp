@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { RouteComponentProps } from 'react-router';
 import { Link, NavLink } from 'react-router-dom';
+import { HighScores } from 'ClientApp/components/HighScores';
 
 class Score {
     id: number;
@@ -27,6 +28,7 @@ class Question {
 }
 
 interface IQuizState {
+    Scores: Score[];
     Questions: Question[];
     Alternatives: Alternative[];
     loading: boolean;
@@ -36,12 +38,14 @@ export class Quiz extends React.Component<RouteComponentProps<{}>, IQuizState> {
     public constructor() {
         super();
         this.state = {
+            Scores: [],
             Questions: [],
             Alternatives: [],
             loading: true
         }
 
-        this.fetchQuestions = this.fetchQuestions.bind(this);
+        this.fetchScores = this.fetchScores.bind(this);
+        this.fetchRandomQuestions = this.fetchRandomQuestions.bind(this);
         this.fetchAlternatives = this.fetchAlternatives.bind(this);
     }
 
@@ -51,30 +55,45 @@ export class Quiz extends React.Component<RouteComponentProps<{}>, IQuizState> {
             : this.renderQuizTable(this.state.Questions, this.state.Alternatives)
 
         return <div>
-            <h1>Questions</h1>
+            <h1>Quiz</h1>
             {contents}
+            <button onClick={this.GetAllAnswers}>submit</button>
         </div>
     }
 
     public renderQuizTable(Questions: Question[], Alternatives: Alternative[]) {
         return Questions.map(q =>
-            <table key={q.id}>
+            <table key={q.id} id={"question: " + q.id.toString()}>
                 <thead>
-                    <th>{q.content}</th>
+                    <tr>
+                        <th><h2>{q.content}</h2></th>
+                    </tr>
                 </thead>
                 <tbody>
-                    {this.alternativeFilter(q.id)}
+                    <tr>{this.alternativeFilter(q.id)}</tr>
                 </tbody>
             </table>
         );
     }
 
+    public fetchScores() {
+        fetch("api/Scores")
+            .then(Response => Response.json() as Promise<Score[]>)
+            .then(data => {
+                //console.log(data);
+                this.setState({
+                    Scores: data,
+                    loading: false
+                });
+            })
+            .catch(error => { console.log("error: ", error) });
+    }
 
-
-    public fetchQuestions() {
-        fetch("api/Questions")
+    public fetchRandomQuestions() {
+        fetch("api/Questions/GetRandomQuestions")
             .then(Response => Response.json() as Promise<Question[]>)
             .then(data => {
+                //console.log(data);
                 this.setState({
                     Questions: data,
                     loading: false
@@ -97,28 +116,42 @@ export class Quiz extends React.Component<RouteComponentProps<{}>, IQuizState> {
 
     public alternativeFilter(Id: number) {
         const alternatives: Alternative[] = this.state.Alternatives.filter(a => a.questionId == Id);
-        if (alternatives.length < 1) return <br/>;
+        if (alternatives.length < 1) return <td></td>;
 
-        return alternatives.map(f =>
-            <tr key={f.id}>
-                <div>{f.content}</div>
-                <div><input type="radio" name="istrue" id="istrue" /></div>
-            </tr>
+        return alternatives.map(a =>
+            <td key={a.id}>
+                <label><input type="radio" name={Id.toString()} id={a.id.toString()}></input>{a.content}</label>
+            </td>
         );
     }
 
-    public AddScore(alternative: Alternative) {
-        fetch("api/Score/", { method: "Post", body: alternative })
-            .then(Response => Response.json() as Promise<Alternative>)
-            .then(json => {
-                console.log(json);
+    public GetAllAnswers() {
+        const alternatives: Alternative[] = this.state.Alternatives;
+        var radios = document.getElementsByTagName('input');
+
+        for (let i = 0; i < radios.length; i++) {
+            if (radios[i].type == 'radio') {
+                var Id = parseInt(radios[i].id);
+                console.log(alternatives.filter(a => a.id == Id));
+            }
+        }
+    }
+
+    public AddScore(questionId: number) {
+        fetch("api/Questions/" + questionId, { method: "post" })
+            .then(Response => Response.json() as Promise<Score[]>)
+            .then(data => {
+                this.setState({
+                    Scores: data,
+                    loading: false
+                });
             })
             .catch(error => { console.log("error: ", error) });
-        return alternative;
     }
 
     componentDidMount() {
-        this.fetchQuestions();
+        this.fetchScores();
+        this.fetchRandomQuestions();
         this.fetchAlternatives();
     }
 }
