@@ -118,6 +118,22 @@ namespace QuizApp.Controllers
             return Ok(alternative);
         }
 
+        [HttpGet("CreateAlternative")]
+        public async Task<IActionResult> CreateAlternative(string content, bool isTrue, int questionId)
+        {
+            Alternative alternative = new Alternative
+            {
+                Content = content,
+                IsTrue = isTrue,
+                QuestionId = questionId
+            };
+
+            _context.Alternatives.Add(alternative);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction("GetAlternative", new { id = alternative.Id }, alternative);
+        }
+
         private bool AlternativeExists(int id)
         {
             return _context.Alternatives.Any(e => e.Id == id);

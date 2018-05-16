@@ -44,6 +44,8 @@ export class Questions extends React.Component<RouteComponentProps<{}>, IQuestio
 
         this.fetchQuestions = this.fetchQuestions.bind(this);
         this.fetchAlternatives = this.fetchAlternatives.bind(this);
+        this.AddQuestion = this.AddQuestion.bind(this);
+        this.AddAlternatives = this.AddAlternatives.bind(this);
     }
 
     public render() {
@@ -119,11 +121,9 @@ export class Questions extends React.Component<RouteComponentProps<{}>, IQuestio
                 <li>
                     Time:<input id="time" type="text" placeholder="time" />
                 </li>
-                <li>Answer:<input id="answer" name="Answer"/>
-                    <input type="checkbox" name="isTrue" id="isTrue" />
+                <li>Answer:<input name='Answers' /><input type='checkbox' name='isTrue' /></li>
                     <div id="addAnswers"></div>
                     <button onClick={this.AddMoreAnswers}>+</button>
-                </li>
                 <li><a className="action" onClick={this.AddQuestion}>Add</a></li>
             </ul>       
         </div>
@@ -134,54 +134,38 @@ export class Questions extends React.Component<RouteComponentProps<{}>, IQuestio
         if (alternatives.length < 1) return <br/>;
 
         return alternatives.map(f =>
-            <div key={f.id}>{f.content} {f.isTrue}</div>
+            <div key={f.id}>{f.content}<input type="checkbox" checked={f.isTrue} /></div>
         );
     }
 
     public AddMoreAnswers(event: any) {
-        let newAnswer = <li>Answer:<input id="answer" name="Answer" /><input type="checkbox" name="istrue" id="istrue" /></li>
+        let newAnswer = "<li>Answer:<input name='Answers' /><input type='checkbox' name='isTrue' /></li>";
+        console.log("answers: " + document.getElementsByName("Answers").length);
+        console.log("isTrue: " + document.getElementsByName("isTrue").length);
         (document.getElementById("addAnswers") as HTMLDivElement).innerHTML += newAnswer;
     }
 
-    //public AddAlternatives() {
-    //    let answers: string[] = (document.getElementsByName("answer"));
-    //    let isTrue: boolean[] = (document.getElementsByName("isTrue"));
-
-    //    let alternatives: Alternative[] = new Alternative();
-
-    //    for (let i = 0; i < answers.length; i++) {
-    //        let alternative = new Alternative();
-    //        alternative.content = answers[i];
-    //        alternative.isTrue = isTrue[i];
-    //    }
-
-    //    alternatives.forEach(function (alt) {
-    //        fetch("api/Alternatives/" + alt, { method: "post" })
-    //            .then()
-    //    });
-    //}
+    public AddAlternatives(questionId: number) {
+        for (let i = 0; i < document.getElementsByName("Answers").length; i++) {
+            let answer: string = (document.getElementsByName("Answers")[i] as HTMLInputElement).value;
+            let isTrue: boolean = (document.getElementsByName("isTrue")[i] as HTMLInputElement).checked.valueOf();
+            fetch("api/Alternatives/CreateAlternative?Content=" + answer + "&isTrue=" + isTrue + "&questionId=" + questionId)
+                .then(Response => Response.json() as Promise<Alternative>)
+                .catch(error => { console.log("error: ", error) });
+        }
+    }
 
     public AddQuestion() {
         let time: number = parseInt((document.getElementById("time") as HTMLInputElement).value);
         let content: string = (document.getElementById("content") as HTMLInputElement).value;
         
-
-        let question = new Question();
-        question.time = time;
-        question.content = content;
-
-        fetch("api/Questions/" + question, { method: "post" })
+        fetch("api/Questions/CreateQuestion?time=" + time + "&content=" + content)
             .then(Response => Response.json() as Promise<Question>)
             .then(data => {
-                console.log(data);
-                this.setState({
-                    Questions: this.state.Questions.filter((rec) => {
-                        return (rec.id == question.id);
-                    })
-                });
+                console.log(data.id);
+                this.AddAlternatives(data.id);
             })
             .catch(error => { console.log("error: ", error) });
-        return question;
     }
 
     public RemoveQuestion(Id: number) {

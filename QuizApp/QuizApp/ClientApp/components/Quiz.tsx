@@ -2,6 +2,7 @@ import * as React from 'react';
 import { RouteComponentProps } from 'react-router';
 import { Link, NavLink } from 'react-router-dom';
 import { HighScores } from 'ClientApp/components/HighScores';
+import { Questions } from 'ClientApp/components/Questions';
 
 class Score {
     id: number;
@@ -47,6 +48,8 @@ export class Quiz extends React.Component<RouteComponentProps<{}>, IQuizState> {
         this.fetchScores = this.fetchScores.bind(this);
         this.fetchRandomQuestions = this.fetchRandomQuestions.bind(this);
         this.fetchAlternatives = this.fetchAlternatives.bind(this);
+        this.alternativeFilter = this.alternativeFilter.bind(this);
+        this.GetAllAnswers = this.GetAllAnswers.bind(this);
     }
 
     public render() {
@@ -125,27 +128,32 @@ export class Quiz extends React.Component<RouteComponentProps<{}>, IQuizState> {
         );
     }
 
-    public GetAllAnswers() {
-        const alternatives: Alternative[] = this.state.Alternatives;
+    public GetAllAnswers() {      
         var radios = document.getElementsByTagName('input');
+        const alternatives: Alternative[] = this.state.Alternatives;
 
         for (let i = 0; i < radios.length; i++) {
             if (radios[i].type == 'radio') {
-                var Id = parseInt(radios[i].id);
-                console.log(alternatives.filter(a => a.id == Id));
+                let Id = parseInt(radios[i].id);
+                let alternative = alternatives.filter(a => a.id == Id)[0];
+
+                if (alternative.isTrue.valueOf() == radios[i].checked.valueOf() && radios[i].checked.valueOf() == true) {
+                    let score = new Score();
+                    var today = new Date();
+                    score.date = today.toDateString();
+                    score.questionId = alternative.questionId;
+                    score.timeTaken = 0;
+                    score.points = 1;
+                    console.log(score);
+                    this.AddScore(score);
+                }
             }
         }
     }
 
-    public AddScore(questionId: number) {
-        fetch("api/Questions/" + questionId, { method: "post" })
-            .then(Response => Response.json() as Promise<Score[]>)
-            .then(data => {
-                this.setState({
-                    Scores: data,
-                    loading: false
-                });
-            })
+    public AddScore(score: Score) {
+        fetch("api/Scores/CreateScore?points="+score.points+"&timeTaken="+score.timeTaken+"&questionId="+score.questionId)
+            .then(Response => Response.json() as Promise<Score>)
             .catch(error => { console.log("error: ", error) });
     }
 
