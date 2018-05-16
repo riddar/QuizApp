@@ -7,6 +7,8 @@ export class Home extends React.Component<RouteComponentProps<{}>, {}> {
         return <div>
             <h1>QuizApp</h1>
 
+            
+
             <NavLink to={'/Quiz'} exact activeClassName='active'>
                 <button>Start Quiz</button> 
             </NavLink>

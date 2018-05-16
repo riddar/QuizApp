@@ -119,7 +119,7 @@ namespace QuizApp.Controllers
         }
 
         // Add: api/scores/5
-        [HttpPost("{id, points, timeTaken}")]
+        [HttpPost("{id, points, timeTaken, questionId}")]
         public async Task<IActionResult> AddScore([FromRoute] int id, [FromRoute] int points, [FromRoute] int timeTaken)
         {
             var question = await _context.Questions.Include(q => q.Alternatives).Where(q => q.Id == id).FirstOrDefaultAsync();
@@ -139,6 +139,27 @@ namespace QuizApp.Controllers
             await _context.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetScore), new { id = tempScore.Id }, tempScore);
+        }
+
+        [HttpGet("CreateScore")]
+        public async Task<IActionResult> CreateScore(int points, int timeTaken, int questionId)
+        {
+            DateTime date = new DateTime();
+            Score score = new Score
+            {
+                Points = points,
+                TimeTaken = timeTaken,
+                Date = date,
+                QuestionId = questionId
+            };
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            _context.Scores.Add(score);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction("GetScore", new { id = score.Id }, score);
         }
 
         private bool ScoreExists(int id)
