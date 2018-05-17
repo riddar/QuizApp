@@ -53,7 +53,7 @@ export class HighScores extends React.Component<RouteComponentProps<{}>, IHighSc
             <tbody>
                 {scores.map(s =>
                     <tr key={s.id}>
-                        <td>{s.id}</td>
+                        <td className="strongText">{s.id}</td>
                         <td>{s.points}</td>
                         <td>{s.timeTaken}</td>
                         <td>{s.date}</td>

@@ -60,7 +60,7 @@ export class Quiz extends React.Component<RouteComponentProps<{}>, IQuizState> {
         return <div>
             <h1>Quiz</h1>
             {contents}
-            <button onClick={this.GetAllAnswers}>submit</button>
+            <button id="questsubbutton" onClick={this.GetAllAnswers}>submit</button>
         </div>
     }
 
@@ -73,7 +73,7 @@ export class Quiz extends React.Component<RouteComponentProps<{}>, IQuizState> {
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>{this.alternativeFilter(q.id)}</tr>
+                   <tr className="inline-block col-md-12" >{this.alternativeFilter(q.id)}</tr>
                 </tbody>
             </table>
         );
@@ -125,6 +125,7 @@ export class Quiz extends React.Component<RouteComponentProps<{}>, IQuizState> {
             <td key={a.id}>
                 <label><input type="radio" name={Id.toString()} id={a.id.toString()}></input>{a.content}</label>
             </td>
+            
         );
     }
 

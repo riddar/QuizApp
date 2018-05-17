@@ -77,7 +77,7 @@ export class Questions extends React.Component<RouteComponentProps<{}>, IQuestio
             <tbody>
                 {Questions.map(q =>
                     <tr key={q.id}>
-                        <td>{q.id}</td>
+                        <td className="strongText">{q.id}</td>
                         <td>{q.content}</td>
                         <td>{q.time}</td>
                         <td>{this.alternativeFilter(q.id)}</td>
@@ -115,15 +115,17 @@ export class Questions extends React.Component<RouteComponentProps<{}>, IQuestio
     public renderQuestionAdd() {
         return <div>
             <ul className='nav navbar-nav' style={{ display: "block" }}>
-                <li>
-                    Question:<input id="content" type="text" placeholder="content"/>
+                <li className="col-md-12">
+                    Question: <input id="content" type="text" placeholder="content" />
                 </li>
-                <li>
-                    Time:<input id="time" type="text" placeholder="time" />
+                <li className="col-md-12"> 
+                    Time: <input id="time" type="text" placeholder="time" />
                 </li>
-                <li>Answer:<input name='Answers' /><input type='checkbox' name='isTrue' /></li>
-                    <div id="addAnswers"></div>
-                    <button onClick={this.AddMoreAnswers}>+</button>
+                <li className="col-md-12">
+                    Answer: <input id="answers" name='Answers' />
+                    <input  id="istrue" type='checkbox' name='isTrue' /></li>
+                <div id="addAnswers" className="col-md-12"></div>
+                 <button onClick={this.AddMoreAnswers}>+</button>
                 <li><a className="action" onClick={this.AddQuestion}>Add</a></li>
             </ul>       
         </div>
@@ -139,7 +141,7 @@ export class Questions extends React.Component<RouteComponentProps<{}>, IQuestio
     }
 
     public AddMoreAnswers(event: any) {
-        let newAnswer = "<li>Answer:<input name='Answers' /><input type='checkbox' name='isTrue' /></li>";
+        let newAnswer = "<li>Answer:<input id='addmoreanswers' name='Answers' /><input  id='addmoreanswerscheckbox'  type='checkbox' name='isTrue' /></li>";
         console.log("answers: " + document.getElementsByName("Answers").length);
         console.log("isTrue: " + document.getElementsByName("isTrue").length);
         (document.getElementById("addAnswers") as HTMLDivElement).innerHTML += newAnswer;

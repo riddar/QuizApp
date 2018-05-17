@@ -64,3 +64,64 @@
         text-overflow: ellipsis;
     }
 }
+
+
+body {
+    background-color: lightblue;
+    color: #808080;
+    font-size:medium;
+}
+
+h1,h2{
+    color: #ffffff;
+}
+
+th{
+    font-size: large;
+}
+
+.strongText{
+    font-weight:bold;
+}
+
+#content{
+    position:relative;
+    left:10px;
+    bottom:0px;
+}
+
+#time {
+    position: relative;
+    left: 40px;
+    bottom: 0px;
+}
+
+#answers {
+    position: relative;
+    left: 20px;
+    bottom: 0px;
+}
+
+#istrue {
+    position: relative;
+    left: 20px;
+    bottom: 0px;
+}
+
+#addmoreanswers {
+    position: relative;
+    left: 25px;
+    bottom: 0px;
+}
+
+#addmoreanswerscheckbox {
+    position: relative;
+    left: 25px;
+    bottom: 0px;
+}
+
+#questsubbutton {
+    position: relative;
+    left: 8px;
+    bottom: -20px;
+}
