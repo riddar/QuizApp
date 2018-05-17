@@ -142,6 +142,21 @@ namespace QuizApp.Controllers
             return question;
         }
 
+        [HttpGet("CreateQuestion")]
+        public async Task<IActionResult> CreateScore(int time, string content)
+        {
+            Question question = new Question
+            {
+                Time = time,
+                Content = content
+            };
+
+            _context.Questions.Add(question);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction("GetQuestion", new { id = question.Id }, question);
+        }
+
         private bool QuestionExists(int id)
         {
             return _context.Questions.Any(e => e.Id == id);
