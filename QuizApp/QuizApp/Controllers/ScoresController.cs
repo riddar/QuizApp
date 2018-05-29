@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QuizApp.Data;
@@ -14,18 +15,20 @@ namespace QuizApp.Controllers
     [Route("api/Scores")]
     public class ScoresController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ApplicationDbContext context;
+        private readonly UserManager<ApplicationUser> userManager;
 
-        public ScoresController(ApplicationDbContext context)
+        public ScoresController(ApplicationDbContext _context, UserManager<ApplicationUser> _userManager)
         {
-            _context = context;
+            context = _context;
+            userManager = _userManager;
         }
 
         // GET: api/Scores
         [HttpGet]
         public IEnumerable<Score> GetScores()
         {
-            return _context.Scores;
+            return context.Scores;
         }
 
         // GET: api/Scores/5
@@ -37,7 +40,7 @@ namespace QuizApp.Controllers
                 return BadRequest(ModelState);
             }
 
-            var score = await _context.Scores.SingleOrDefaultAsync(m => m.Id == id);
+            var score = await context.Scores.SingleOrDefaultAsync(m => m.Id == id);
 
             if (score == null)
             {
@@ -61,11 +64,11 @@ namespace QuizApp.Controllers
                 return BadRequest();
             }
 
-            _context.Entry(score).State = EntityState.Modified;
+            context.Entry(score).State = EntityState.Modified;
 
             try
             {
-                await _context.SaveChangesAsync();
+                await context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -91,8 +94,8 @@ namespace QuizApp.Controllers
                 return BadRequest(ModelState);
             }
 
-            _context.Scores.Add(score);
-            await _context.SaveChangesAsync();
+            context.Scores.Add(score);
+            await context.SaveChangesAsync();
 
             return CreatedAtAction("GetScore", new { id = score.Id }, score);
         }
@@ -106,14 +109,14 @@ namespace QuizApp.Controllers
                 return BadRequest(ModelState);
             }
 
-            var score = await _context.Scores.SingleOrDefaultAsync(m => m.Id == id);
+            var score = await context.Scores.SingleOrDefaultAsync(m => m.Id == id);
             if (score == null)
             {
                 return NotFound();
             }
 
-            _context.Scores.Remove(score);
-            await _context.SaveChangesAsync();
+            context.Scores.Remove(score);
+            await context.SaveChangesAsync();
 
             return Ok(score);
         }
@@ -122,7 +125,7 @@ namespace QuizApp.Controllers
         [HttpPost("{id, points, timeTaken, questionId}")]
         public async Task<IActionResult> AddScore([FromRoute] int id, [FromRoute] int points, [FromRoute] int timeTaken)
         {
-            var question = await _context.Questions.Include(q => q.Alternatives).Where(q => q.Id == id).FirstOrDefaultAsync();
+            var question = await context.Questions.Include(q => q.Alternatives).Where(q => q.Id == id).FirstOrDefaultAsync();
 
             if (question == null)
                 return NotFound();
@@ -135,8 +138,8 @@ namespace QuizApp.Controllers
                 QuestionId = question.Id
             };
 
-            _context.Scores.Add(tempScore);
-            await _context.SaveChangesAsync();
+            context.Scores.Add(tempScore);
+            await context.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetScore), new { id = tempScore.Id }, tempScore);
         }
@@ -156,15 +159,15 @@ namespace QuizApp.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            _context.Scores.Add(score);
-            await _context.SaveChangesAsync();
+            context.Scores.Add(score);
+            await context.SaveChangesAsync();
 
             return CreatedAtAction("GetScore", new { id = score.Id }, score);
         }
 
         private bool ScoreExists(int id)
         {
-            return _context.Scores.Any(e => e.Id == id);
+            return context.Scores.Any(e => e.Id == id);
         }
     }
 }

@@ -3,14 +3,9 @@
 
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
-@{ViewData["Title"] = "Home Page";}
 
 @if (SignInManager.IsSignedIn(User))
 {
-    <div id="react-app">Loading...</div>
-    @section scripts {
-        <script src="~/dist/main.js" asp-append-version="true"></script>
-    }
     <form asp-area="" asp-controller="Account" asp-action="Logout" method="post" id="logoutForm" class="navbar-right">
         <ul class="nav navbar-nav navbar-right">
             <li>

@@ -23,6 +23,7 @@ namespace QuizApp.Data
             // Add your customizations after calling base.OnModelCreating(builder);
             builder.Entity<Score>().HasKey(h => h.Id);
             builder.Entity<Score>().HasOne(s => s.Question).WithMany(q => q.Scores);
+            builder.Entity<Score>().HasOne(s => s.User).WithMany(u => u.Scores);
 
             builder.Entity<Question>().HasKey(q => q.Id);
             builder.Entity<Question>().HasMany(q => q.Scores).WithOne(s => s.Question);
