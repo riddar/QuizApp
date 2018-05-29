@@ -130,12 +130,16 @@ namespace QuizApp.Controllers
             if (question == null)
                 return NotFound();
 
+            var user = await userManager.GetUserAsync(HttpContext.User);
+
             Score tempScore = new Score
             {
                 Points = points,
                 TimeTaken = timeTaken,
                 Question = question,
-                QuestionId = question.Id
+                QuestionId = question.Id,
+                User = user,
+                UserId = user.Id
             };
 
             context.Scores.Add(tempScore);

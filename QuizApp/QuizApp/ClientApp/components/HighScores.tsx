@@ -7,11 +7,12 @@ interface IHighScoresState {
     loading: boolean;
 }
 
-interface Score {
+class Score {
     id: number;
     points: number;
     date: string;
     timeTaken: number;
+    userId: string;
     HasFetchedData: boolean;
 }
 
@@ -48,6 +49,7 @@ export class HighScores extends React.Component<RouteComponentProps<{}>, IHighSc
                     <th>Points</th>
                     <th>TimeTaken</th>
                     <th>Date</th>
+                    <th>UserName</th>
                 </tr>
             </thead>
             <tbody>
@@ -57,6 +59,7 @@ export class HighScores extends React.Component<RouteComponentProps<{}>, IHighSc
                         <td>{s.points}</td>
                         <td>{s.timeTaken}</td>
                         <td>{s.date}</td>
+                        <td>{s.userId}</td>
                     </tr>
                 )}
             </tbody>

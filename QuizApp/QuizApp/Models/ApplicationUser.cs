@@ -10,5 +10,6 @@ namespace QuizApp.Models
     public class ApplicationUser : IdentityUser
     {
         public virtual IList<Score> Scores { get; set; }
+        public Boolean IsAdmin { get; set; }
     }
 }
