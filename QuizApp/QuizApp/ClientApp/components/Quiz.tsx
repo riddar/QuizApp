@@ -10,6 +10,7 @@ class Score {
     date: string;
     timeTaken: number;
     questionId: number;
+    userId: string;
 }
 
 class Alternative {
@@ -132,6 +133,7 @@ export class Quiz extends React.Component<RouteComponentProps<{}>, IQuizState> {
     public GetAllAnswers() {      
         var radios = document.getElementsByTagName('input');
         const alternatives: Alternative[] = this.state.Alternatives;
+        var userId = (document.getElementById("UserId") as HTMLInputElement);
 
         for (let i = 0; i < radios.length; i++) {
             if (radios[i].type == 'radio') {
@@ -141,10 +143,16 @@ export class Quiz extends React.Component<RouteComponentProps<{}>, IQuizState> {
                 if (alternative.isTrue.valueOf() == radios[i].checked.valueOf() && radios[i].checked.valueOf() == true) {
                     let score = new Score();
                     var today = new Date();
-                    score.date = today.toDateString();
+                    var dd = today.getDate();
+                    var mm = today.getMonth() + 1;
+                    var yyyy = today.getFullYear();
+
+                    score.date = mm + '/' + dd + '/' + yyyy;
                     score.questionId = alternative.questionId;
                     score.timeTaken = 0;
                     score.points = 1;
+                    score.userId = String(userId.dataset.id);
+
                     console.log(score);
                     this.AddScore(score);
                 }
@@ -153,7 +161,7 @@ export class Quiz extends React.Component<RouteComponentProps<{}>, IQuizState> {
     }
 
     public AddScore(score: Score) {
-        fetch("api/Scores/CreateScore?points="+score.points+"&timeTaken="+score.timeTaken+"&questionId="+score.questionId)
+        fetch("api/Scores/CreateScore?points=" + score.points + "&timeTaken=" + score.timeTaken + "&questionId=" + score.questionId + "&userId=" + score.userId)
             .then(Response => Response.json() as Promise<Score>)
             .catch(error => { console.log("error: ", error) });
     }

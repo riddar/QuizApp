@@ -122,15 +122,13 @@ namespace QuizApp.Controllers
         }
 
         // Add: api/scores/5
-        [HttpPost("{id, points, timeTaken, questionId}")]
-        public async Task<IActionResult> AddScore([FromRoute] int id, [FromRoute] int points, [FromRoute] int timeTaken)
+        [HttpPost("{id, points, timeTaken, questionId, userId}")]
+        public async Task<IActionResult> AddScore([FromRoute] int points, [FromRoute] int timeTaken, [FromRoute] int questionId, [FromRoute] string userId)
         {
-            var question = await context.Questions.Include(q => q.Alternatives).Where(q => q.Id == id).FirstOrDefaultAsync();
+            var question = await context.Questions.Include(q => q.Alternatives).Where(q => q.Id == questionId).FirstOrDefaultAsync();
 
             if (question == null)
                 return NotFound();
-
-            var user = await userManager.GetUserAsync(HttpContext.User);
 
             Score tempScore = new Score
             {
@@ -138,8 +136,7 @@ namespace QuizApp.Controllers
                 TimeTaken = timeTaken,
                 Question = question,
                 QuestionId = question.Id,
-                User = user,
-                UserId = user.Id
+                UserId = userId
             };
 
             context.Scores.Add(tempScore);
@@ -149,7 +146,7 @@ namespace QuizApp.Controllers
         }
 
         [HttpGet("CreateScore")]
-        public async Task<IActionResult> CreateScore(int points, int timeTaken, int questionId)
+        public async Task<IActionResult> CreateScore(int points, int timeTaken, int questionId, string userId)
         {
             DateTime date = new DateTime();
             Score score = new Score
@@ -157,8 +154,9 @@ namespace QuizApp.Controllers
                 Points = points,
                 TimeTaken = timeTaken,
                 Date = date,
-                QuestionId = questionId
-            };
+                QuestionId = questionId,
+                UserId = userId
+        };
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
