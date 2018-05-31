@@ -18,14 +18,6 @@ export class NavMenu extends React.Component<{}, INavMenuState> {
     }
 
     public render() {
-        let content = this.state.isAdmin
-            ? <NavLink to={'/QuestionsAdmin'} exact activeClassName='active'><span className='glyphicon glyphicon-education'></span>QuestionsAdmin</NavLink>
-            : <NavLink to={'/Questions'} exact activeClassName='active'><span className='glyphicon glyphicon-education'></span>Questions</NavLink>
-
-        let contents = this.state.loading
-            ? <p><em>Loading...</em></p>
-            : content
-
         return <div className='main-nav'>
             <div className='navbar navbar-inverse'>
                 <div className='navbar-header'>
@@ -58,7 +50,7 @@ export class NavMenu extends React.Component<{}, INavMenuState> {
                             </NavLink>
                         </li>
                         <li>
-                            {contents}
+                            <NavLink to={'/Questions'} exact activeClassName='active'><span className='glyphicon glyphicon-education'></span>Questions</NavLink>
                         </li>
                     </ul>
                 </div>

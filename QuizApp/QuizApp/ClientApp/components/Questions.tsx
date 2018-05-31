@@ -81,6 +81,8 @@ export class Questions extends React.Component<RouteComponentProps<{}>, IQuestio
                         <td>{q.content}</td>
                         <td>{q.time}</td>
                         <td>{this.alternativeFilter(q.id)}</td>
+                        <td><NavLink to={'/Edit'} exact activeClassName='active'>Edit</NavLink></td>
+                        <td><a className="action" onClick={(id) => this.RemoveQuestion(q.id)}>Delete</a></td>
                     </tr>)}
             </tbody>
         </table>
