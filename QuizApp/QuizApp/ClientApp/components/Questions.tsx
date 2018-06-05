@@ -78,38 +78,14 @@ export class Questions extends React.Component<RouteComponentProps<{}>, IQuestio
                 {Questions.map(q =>
                     <tr key={q.id}>
                         <td className="strongText">{q.id}</td>
-                        <td>{q.content}</td>
-                        <td>{q.time}</td>
+                        <td><input type="text" defaultValue={q.content} id={"updateContent" + q.id.toString()} placeholder={"updateContent" + q.id.toString()} /></td>
+                        <td><input type="text" defaultValue={q.time.toString()} id={"updateTime" + q.id.toString()} placeholder={"updateTime" + q.id.toString()} /></td>
                         <td>{this.alternativeFilter(q.id)}</td>
-                        <td><NavLink to={'/Edit'} exact activeClassName='active'>Edit</NavLink></td>
+                        <td><a className="action" onClick={(id) => this.UpdateQuestion(q.id)}>Update</a></td>
                         <td><a className="action" onClick={(id) => this.RemoveQuestion(q.id)}>Delete</a></td>
                     </tr>)}
             </tbody>
         </table>
-    }
-
-    public fetchQuestions() {
-        fetch("api/Questions/GetQuestions")
-            .then(Response => Response.json() as Promise<Question[]>)
-            .then(data => {
-                this.setState({
-                    Questions: data,
-                    loading: false
-                });
-            })
-            .catch(error => { console.log("error: ", error) });
-    }
-
-    public fetchAlternatives() {
-        fetch("api/Alternatives")
-            .then(Response => Response.json() as Promise<Alternative[]>)
-            .then(data => {
-                this.setState({
-                    Alternatives: data,
-                    loading: false
-                });
-            })
-            .catch(error => { console.log("error: ", error) });
     }
 
     public renderQuestionAdd() {
@@ -136,14 +112,15 @@ export class Questions extends React.Component<RouteComponentProps<{}>, IQuestio
         if (alternatives.length < 1) return <br/>;
 
         return alternatives.map(f =>
-            <div key={f.id}>{f.content}<input type="checkbox" checked={f.isTrue} /></div>
+            <div key={f.id}>
+                <div type="text" id={ "altContent" + f.questionId }>{ f.content }</div>
+                <input type="checkbox" checked={f.isTrue} id={"altAnswer" + f.questionId} />
+            </div>
         );
     }
 
     public AddMoreAnswers(event: any) {
         let newAnswer = "<li>Answer:<input id='addmoreanswers' name='Answers' /><input  id='addmoreanswerscheckbox'  type='checkbox' name='isTrue' /></li>";
-        console.log("answers: " + document.getElementsByName("Answers").length);
-        console.log("isTrue: " + document.getElementsByName("isTrue").length);
         (document.getElementById("addAnswers") as HTMLDivElement).innerHTML += newAnswer;
     }
 
@@ -164,21 +141,66 @@ export class Questions extends React.Component<RouteComponentProps<{}>, IQuestio
         fetch("api/Questions/CreateQuestion?time=" + time + "&content=" + content)
             .then(Response => Response.json() as Promise<Question>)
             .then(data => {
-                console.log(data.id);
+                this.state.Questions.push(data);
                 this.AddAlternatives(data.id);
+                this.fetchQuestions();
+                this.fetchAlternatives();
+            })
+            .catch(error => { console.log("error: ", error) });
+    }
+
+    public fetchQuestions() {
+        fetch("api/Questions/GetQuestions")
+            .then(Response => Response.json() as Promise<Question[]>)
+            .then(data => {
+                this.setState({
+                    Questions: data,
+                    loading: false
+                });
+            })
+            .catch(error => { console.log("error: ", error) });
+    }
+
+    public fetchAlternatives() {
+        fetch("api/Alternatives")
+            .then(Response => Response.json() as Promise<Alternative[]>)
+            .then(data => {
+                this.setState({
+                    Alternatives: data,
+                    loading: false
+                });
+            })
+            .catch(error => { console.log("error: ", error) });
+    }
+
+    public UpdateQuestion(Id: number) {
+        let content: string = (document.getElementById("updateContent" + Id) as HTMLInputElement).value;
+        let time: number = parseInt((document.getElementById("updateTime"+ Id) as HTMLInputElement).value);
+        fetch("api/Questions/UpdateQuestion?id=" + Id + "&time=" + time + "&content=" + content)
+            .then(Response => Response.json() as Promise<Score>)
+            .then(data => {
+                console.log(data);
+                this.setState({
+                    Questions: this.state.Questions.filter((rec) => {
+                        rec.content = content;
+                        rec.time = time;                   
+                    })
+                });
+                this.fetchQuestions();
+                this.fetchAlternatives();
             })
             .catch(error => { console.log("error: ", error) });
     }
 
     public RemoveQuestion(Id: number) {
-        fetch('api/Questions/' + Id, {method: 'delete' })
+        fetch('api/Questions/' + Id, { method: 'delete' })
             .then(data => {
-            this.setState({
+                this.setState({
                     Questions: this.state.Questions.filter((rec) => {
                         return (rec.id != Id);
                     })
                 });
-        });  
+            });
     }
 
     componentDidMount() {

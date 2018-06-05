@@ -148,12 +148,11 @@ namespace QuizApp.Controllers
         [HttpGet("CreateScore")]
         public async Task<IActionResult> CreateScore(int points, int timeTaken, int questionId, string userId)
         {
-            DateTime date = new DateTime();
             Score score = new Score
             {
                 Points = points,
                 TimeTaken = timeTaken,
-                Date = date,
+                Date = DateTime.Now,
                 QuestionId = questionId,
                 UserId = userId
         };

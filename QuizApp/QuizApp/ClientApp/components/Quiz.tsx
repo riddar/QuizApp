@@ -60,6 +60,7 @@ export class Quiz extends React.Component<RouteComponentProps<{}>, IQuizState> {
 
         return <div>
             <h1>Quiz</h1>
+            <input type="hidden" id="time" defaultValue="0" />
             {contents}
             <button id="questsubbutton" onClick={this.GetAllAnswers}>submit</button>
         </div>
@@ -84,7 +85,6 @@ export class Quiz extends React.Component<RouteComponentProps<{}>, IQuizState> {
         fetch("api/Scores")
             .then(Response => Response.json() as Promise<Score[]>)
             .then(data => {
-                //console.log(data);
                 this.setState({
                     Scores: data,
                     loading: false
@@ -97,7 +97,6 @@ export class Quiz extends React.Component<RouteComponentProps<{}>, IQuizState> {
         fetch("api/Questions/GetRandomQuestions")
             .then(Response => Response.json() as Promise<Question[]>)
             .then(data => {
-                //console.log(data);
                 this.setState({
                     Questions: data,
                     loading: false
@@ -116,6 +115,16 @@ export class Quiz extends React.Component<RouteComponentProps<{}>, IQuizState> {
                 });
             })
             .catch(error => { console.log("error: ", error) });
+    }
+
+    public getTotalTime(Questions: Question[]) {
+        let QuestionsGroupedByUserId: Question[] = [];
+        let time: number = 0;
+        Questions.map(q =>
+            time += q.time
+        );
+
+        return time;
     }
 
     public alternativeFilter(Id: number) {
@@ -148,12 +157,11 @@ export class Quiz extends React.Component<RouteComponentProps<{}>, IQuizState> {
                     var yyyy = today.getFullYear();
 
                     score.date = mm + '/' + dd + '/' + yyyy;
+                    console.log(mm + '/' + dd + '/' + yyyy);
                     score.questionId = alternative.questionId;
                     score.timeTaken = 0;
                     score.points = 1;
                     score.userId = String(userId.dataset.id);
-
-                    console.log(score);
                     this.AddScore(score);
                 }
             }
@@ -163,6 +171,9 @@ export class Quiz extends React.Component<RouteComponentProps<{}>, IQuizState> {
     public AddScore(score: Score) {
         fetch("api/Scores/CreateScore?points=" + score.points + "&timeTaken=" + score.timeTaken + "&questionId=" + score.questionId + "&userId=" + score.userId)
             .then(Response => Response.json() as Promise<Score>)
+            .then(data => {
+                console.log(data);
+            })
             .catch(error => { console.log("error: ", error) });
     }
 

@@ -14,7 +14,6 @@ export class NavMenu extends React.Component<{}, INavMenuState> {
             loading: true
         }
 
-        this.fetchUser = this.fetchUser.bind(this);
     }
 
     public render() {
@@ -56,23 +55,5 @@ export class NavMenu extends React.Component<{}, INavMenuState> {
                 </div>
             </div>
         </div>;
-    }
-
-    fetchUser() {
-        fetch("api/Admin/GetUser")
-            .then(Response => Response.json())
-            .then(data => {
-                console.log(data);
-                this.setState({
-                    isAdmin: data,
-                    loading: false
-                });
-            })
-            .catch(error => { console.log("error: ", error) });
-    }
-
-    componentDidMount() {
-        this.fetchUser();
-    }
-    
+    }    
 }

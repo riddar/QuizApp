@@ -115,6 +115,25 @@ namespace QuizApp.Controllers
             return Ok(question);
         }
 
+        [HttpGet("UpdateQuestion")]
+        public async Task<IActionResult> UpdateQuestion(int id, string content, int time )
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var question = await _context.Questions.SingleOrDefaultAsync(m => m.Id == id);
+            if (question == null)
+                return View();
+
+            question.Content = content;
+            question.Time = time;
+
+            _context.Questions.Update(question);
+            await _context.SaveChangesAsync();
+
+            return Ok(question);
+        }
+
         [HttpGet("GetRandomQuestions")]
         public IEnumerable<Question> GetRandomQuestions()
         {
