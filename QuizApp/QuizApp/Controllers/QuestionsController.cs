@@ -138,7 +138,7 @@ namespace QuizApp.Controllers
         public IEnumerable<Question> GetRandomQuestions()
         {
             var rand = new Random();
-            var size = 10;
+            var size = 1;
             var questions = _context.Questions.OrderBy(c => rand.Next()).Take(size).ToList();
 
             foreach (var question in questions)

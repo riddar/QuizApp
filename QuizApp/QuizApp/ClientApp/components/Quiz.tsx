@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { RouteComponentProps } from 'react-router';
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, Route } from 'react-router-dom';
 import { HighScores } from 'ClientApp/components/HighScores';
 import { Questions } from 'ClientApp/components/Questions';
 
@@ -34,6 +34,10 @@ interface IQuizState {
     Questions: Question[];
     Alternatives: Alternative[];
     loading: boolean;
+    correct: boolean;
+    answeredPoints: number;
+    clicked: number;
+    count: number;
 }
 
 export class Quiz extends React.Component<RouteComponentProps<{}>, IQuizState> {
@@ -43,7 +47,11 @@ export class Quiz extends React.Component<RouteComponentProps<{}>, IQuizState> {
             Scores: [],
             Questions: [],
             Alternatives: [],
-            loading: true
+            loading: true,
+            correct: false,
+            answeredPoints: 0,
+            clicked: 0,
+            count: 0
         }
 
         this.fetchScores = this.fetchScores.bind(this);
@@ -51,6 +59,7 @@ export class Quiz extends React.Component<RouteComponentProps<{}>, IQuizState> {
         this.fetchAlternatives = this.fetchAlternatives.bind(this);
         this.alternativeFilter = this.alternativeFilter.bind(this);
         this.GetAllAnswers = this.GetAllAnswers.bind(this);
+        this.reloadPage = this.reloadPage.bind(this);
     }
 
     public render() {
@@ -62,8 +71,43 @@ export class Quiz extends React.Component<RouteComponentProps<{}>, IQuizState> {
             <h1>Quiz</h1>
             <input type="hidden" id="time" defaultValue="0" />
             {contents}
-            <button id="questsubbutton" onClick={this.GetAllAnswers}>submit</button>
+            {this.TrueOrFalse()}
         </div>
+    }
+
+    public TrueOrFalse() {
+
+        if (this.state.clicked.valueOf() <= 0) {
+            return <button id="questsubbutton" onClick={this.GetAllAnswers}>Submit</button>
+        }
+        else if (this.state.count.valueOf() >= 3) {
+            return <div>
+                <h4>Points: {this.state.answeredPoints.valueOf()}</h4>
+                <NavLink to={'/HighScores'} exact activeClassName='active'><button>Start Quiz</button></NavLink>
+            </div>
+        }
+        else if (this.state.clicked.valueOf() >= 0) {
+            return <div>
+                <p>The answer was: {String(this.state.correct.valueOf())}</p>
+                <button onClick={this.reloadPage}>Next Question</button>
+
+            </div>
+        }
+    }
+
+    public reloadPage() {
+        this.setState({
+            Scores: [],
+            Questions: [],
+            Alternatives: [],
+            loading: true,
+            correct: false,
+            clicked: 0,
+        });
+
+        this.fetchScores();
+        this.fetchRandomQuestions();
+        this.fetchAlternatives();
     }
 
     public renderQuizTable(Questions: Question[], Alternatives: Alternative[]) {
@@ -139,7 +183,7 @@ export class Quiz extends React.Component<RouteComponentProps<{}>, IQuizState> {
         );
     }
 
-    public GetAllAnswers() {      
+    public GetAllAnswers() {
         var radios = document.getElementsByTagName('input');
         const alternatives: Alternative[] = this.state.Alternatives;
         var userId = (document.getElementById("UserId") as HTMLInputElement);
@@ -155,24 +199,37 @@ export class Quiz extends React.Component<RouteComponentProps<{}>, IQuizState> {
                     var dd = today.getDate();
                     var mm = today.getMonth() + 1;
                     var yyyy = today.getFullYear();
-
                     score.date = mm + '/' + dd + '/' + yyyy;
-                    console.log(mm + '/' + dd + '/' + yyyy);
                     score.questionId = alternative.questionId;
                     score.timeTaken = 0;
                     score.points = 1;
                     score.userId = String(userId.dataset.id);
                     this.AddScore(score);
+                    this.setState({
+                        answeredPoints: this.state.answeredPoints + 1,
+                        clicked: this.state.clicked + 1,
+                        count: this.state.count + 1,
+                        correct: true
+                    });
+                }
+                else {
+                    this.setState({
+                        clicked: this.state.clicked + 1,
+                        count: this.state.count + 1,
+                    });
                 }
             }
         }
+    
+        { console.log("points: ", this.state.answeredPoints) }
+
+        { console.log("count: ", this.state.count) }
     }
 
     public AddScore(score: Score) {
         fetch("api/Scores/CreateScore?points=" + score.points + "&timeTaken=" + score.timeTaken + "&questionId=" + score.questionId + "&userId=" + score.userId)
             .then(Response => Response.json() as Promise<Score>)
             .then(data => {
-                console.log(data);
             })
             .catch(error => { console.log("error: ", error) });
     }
